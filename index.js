@@ -10,6 +10,7 @@ if (!gl) {
 }
 
 /**
+    * Create a shader
     * @param {WebGLRenderingContext} gl
 */
 function createShader(gl, type, source) {
@@ -24,14 +25,13 @@ function createShader(gl, type, source) {
     console.log(gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
 }
-
 const vertexShaderSource = document.querySelector("#vertex-shader-2d").text;
 const fragmentShaderSource = document.querySelector("#fragment-shader-2d").text;
-
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
 /**
+    * Create the webgl program by linking the shaders
     * @param {WebGLRenderingContext} gl
 */
 function createProgram(gl, vertexShader, fragmentShader) {
@@ -47,13 +47,14 @@ function createProgram(gl, vertexShader, fragmentShader) {
     console.log(gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
 }
-
 const program = createProgram(gl, vertexShader, fragmentShader);
 
+// Bind positionBuffer to the ARRAY_BUFFER
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
+// Buffer ARRAY_BUFFER with positions array
 const positions = [
     0, 0,
     0, 0.5,
@@ -61,6 +62,7 @@ const positions = [
 ];
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
+// Resizes the canvas
 function resizeCanvasToDisplaySize(canvas) {
   // Lookup the size the browser is displaying the canvas in CSS pixels.
   const displayWidth  = canvas.clientWidth;
@@ -78,14 +80,18 @@ function resizeCanvasToDisplaySize(canvas) {
  
   return needResize;
 }
+// Resize canvas and set viewport to fill canvas
 resizeCanvasToDisplaySize(gl.canvas);
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
+// Clear canvas
 gl.clearColor(0, 0, 0, 0);
 gl.clear(gl.COLOR_BUFFER_BIT);
 
 gl.useProgram(program);
 
+
+// Tell the attribute how to get data out of positionBuffer
 gl.enableVertexAttribArray(positionAttributeLocation);
 const size = 2;
 const type = gl.FLOAT;
@@ -94,6 +100,7 @@ const stride = 0;
 const offset = 0;
 gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
+// Execute the program
 const primitiveType = gl.TRIANGLES;
 const draw_offset = 0;
 const count = 3;
