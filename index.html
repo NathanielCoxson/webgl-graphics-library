@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebGL Game Library</title>
+    </head>
+    <body>
+        <h1>Hello world</h1>
+        <h2>Canvas Test</h2>
+        <canvas id="canvas"></canvas>
+    </body>
+
+
+    <script id="vertex-shader-2d" type="notjs">
+
+        // an attribute will receive data from a buffer
+        attribute vec4 a_position;
+
+        // all shaders have a main function
+        void main() {
+
+          // gl_Position is a special variable a vertex shader
+          // is responsible for setting
+          gl_Position = a_position;
+        }
+
+    </script>
+
+    <script id="fragment-shader-2d" type="notjs">
+
+        // fragment shaders don't have a default precision so we need
+        // to pick one. mediump is a good default
+        precision mediump float;
+
+        void main() {
+          // gl_FragColor is a special variable a fragment shader
+          // is responsible for setting
+          gl_FragColor = vec4(1, 0, 0.5, 1); // return reddish-purple
+        }
+
+    </script>
+
+    <script src="index.js"></script>
+</html>
