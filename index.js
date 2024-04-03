@@ -56,9 +56,12 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
 // Buffer ARRAY_BUFFER with positions array
 const positions = [
-    0, 0,
-    0, 0.5,
-    0.7, 0,
+    10, 20,
+    80, 20,
+    10, 30,
+    10, 30,
+    80, 20,
+    80, 30,
 ];
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
@@ -90,6 +93,9 @@ gl.clear(gl.COLOR_BUFFER_BIT);
 
 gl.useProgram(program);
 
+// Set the resolution uniform to canvas width / height
+const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
 
 // Tell the attribute how to get data out of positionBuffer
 gl.enableVertexAttribArray(positionAttributeLocation);
@@ -103,5 +109,5 @@ gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride,
 // Execute the program
 const primitiveType = gl.TRIANGLES;
 const draw_offset = 0;
-const count = 3;
+const count = 6;
 gl.drawArrays(primitiveType, draw_offset, count);
