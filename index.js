@@ -54,16 +54,6 @@ const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-// Buffer ARRAY_BUFFER with positions array
-const positions = [
-    10, 20,
-    80, 20,
-    10, 30,
-    10, 30,
-    80, 20,
-    80, 30,
-];
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
 // Resizes the canvas
 function resizeCanvasToDisplaySize(canvas) {
@@ -105,6 +95,61 @@ const normalize = false;
 const stride = 0;
 const offset = 0;
 gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+
+// Fragment shader color uniform location
+var colorUniformLocation = gl.getUniformLocation(program, "u_color");
+// Draw 50 random rectangles
+for (let i = 0; i < 50; i++) {
+    // Set rectangle with random position and size
+    setRectangle(gl, randomInt(300), randomInt(300), 50, 50);
+
+    // Set random color for fragment shader
+    gl.uniform4f(colorUniformLocation, Math.random(), Math.random(), Math.random(), 1);
+
+    // Draw the rectangle
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+}
+
+// Returns random int in interval [0, range)
+function randomInt(range) {
+    return Math.floor(Math.random() * range);
+}
+
+/**
+    Fills the buffer with the values that define a rectangle
+    * @param {WebGLRenderingContext} gl
+*/
+function setRectangle(gl, x, y, width, height) {
+    const x1 = x;
+    const x2 = x + width;
+    const y1 = y;
+    const y2 = y + height;
+
+    // bufferData will use the last used buffer which in this case
+    // is the positionBuffer.
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        x1, y1,
+        x2, y1,
+        x1, y2,
+        x1, y2,
+        x2, y1,
+        x2, y2
+    ]), gl.STATIC_DRAW);
+}
+
+// Buffer ARRAY_BUFFER with positions array
+const positions = [
+    10, 20,
+    80, 20,
+    10, 30,
+    10, 30,
+    80, 20,
+    80, 30,
+];
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+// Set color
+gl.uniform4f(colorUniformLocation, 1, 0, 0.5, 1);
 
 // Execute the program
 const primitiveType = gl.TRIANGLES;
