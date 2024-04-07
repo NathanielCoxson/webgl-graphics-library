@@ -1,3 +1,5 @@
+import Rectangle from "./Rectangle";
+
 export default class Canvas {
     gl: WebGLRenderingContext | null;
     success: boolean;
@@ -71,16 +73,13 @@ export default class Canvas {
 
         this.colorUniformLocation = this.gl.getUniformLocation(this.program, "u_color");
 
-        for (let i = 0; i < 50; i++) {
-            // Set rectangle with random position and size
-            setRectangle(this.gl, randomInt(300), randomInt(300), 50, 50);
+    }
 
-            // Set random color for fragment shader
-            this.gl.uniform4f(this.colorUniformLocation, Math.random(), Math.random(), Math.random(), 1);
-
-            // Draw the rectangle
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
-        }
+    draw(rect: Rectangle): void {
+        if (!this.gl) return; 
+        setRectangle(this.gl, rect.position[0], rect.position[1], rect.x2 - rect.x1, rect.y2 - rect.y1);
+        this.gl.uniform4f(this.colorUniformLocation, 1, 0, 0.5, 1);
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
     }
 }
 
