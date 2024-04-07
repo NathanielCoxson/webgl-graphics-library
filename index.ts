@@ -1,6 +1,5 @@
 const canvas = document.querySelector("#canvas");
 
-/** @type {WebGLRenderingContext} */
 const gl = canvas.getContext("webgl");
 
 if (!gl) {
