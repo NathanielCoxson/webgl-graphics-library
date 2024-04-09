@@ -11,6 +11,9 @@ export default class Canvas {
     resolutionUniformLocation: any;
     colorUniformLocation: any;
     
+    // Shape buffers
+    rectangles: Rectangle[];
+    
     constructor(
         canvasElement: any 
     ) {
@@ -73,13 +76,20 @@ export default class Canvas {
 
         this.colorUniformLocation = this.gl.getUniformLocation(this.program, "u_color");
 
+        this.rectangles = [];
     }
 
     draw(rect: Rectangle): void {
-        if (!this.gl) return; 
-        setRectangle(this.gl, rect.position[0], rect.position[1], rect.x2 - rect.x1, rect.y2 - rect.y1);
-        this.gl.uniform4f(this.colorUniformLocation, 1, 0, 0.5, 1);
-        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+        this.rectangles.push(rect);
+    }
+
+    display() {
+        if (!this.gl) return;
+        for (const rect of this.rectangles) {
+            setRectangle(this.gl, rect.position[0], rect.position[1], rect.x2 - rect.x1, rect.y2 - rect.y1);
+            this.gl.uniform4f(this.colorUniformLocation, 1, 0, 0.5, 1);
+            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+        } 
     }
 }
 
