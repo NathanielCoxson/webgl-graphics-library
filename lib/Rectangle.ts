@@ -1,24 +1,21 @@
-export default class Rectangle {
+import { Shape, Position, Color } from "./Graphics";
+export default class Rectangle extends Shape {
+
     x1: number;
     x2: number;
     y1: number;
     y2: number;
-    color: number[];
-    position: [number, number];
 
     constructor(
-        x: number,
-        y: number,
         width: number,
         height: number,
-        color: number[],
-        position: [number, number]
+        position: Position,
+        color: Color 
     ) {
-        this.x1 = x;
-        this.x2 = x + width;
-        this.y1 = y;
-        this.y2 = y + height;
-        this.color = color;
-        this.position = position;
+        super(position, color);
+        this.x1 = position.x;
+        this.x2 = position.x + width;
+        this.y1 = position.y;
+        this.y2 = position.y + height;
     }
 }
