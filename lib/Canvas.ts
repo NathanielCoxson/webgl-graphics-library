@@ -86,8 +86,8 @@ export default class Canvas {
     display() {
         if (!this.gl) return;
         for (const rect of this.rectangles) {
-            setRectangle(this.gl, rect.position[0], rect.position[1], rect.x2 - rect.x1, rect.y2 - rect.y1);
-            this.gl.uniform4f(this.colorUniformLocation, 1, 0, 0.5, 1);
+            setRectangle(this.gl, rect.position.x, rect.position.y, rect.x2 - rect.x1, rect.y2 - rect.y1);
+            this.gl.uniform4f(this.colorUniformLocation, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
             this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
         } 
     }
