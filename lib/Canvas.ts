@@ -59,7 +59,7 @@ export default class Canvas {
         this.positionBuffer = this.gl.createBuffer();
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-        setRectangle(this.gl, 0, 0, image.width, image.height);
+        setRectangle(this.gl, 0, 0, 50, 50);
 
         this.texCoordBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
@@ -76,6 +76,8 @@ export default class Canvas {
         this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
 
         // Set the parameters so we can render any size image.
+        // S and T are X and Y wrap respectively, clamp tells webgl not to repeat in these directions.
+        // Min and Mag are minimize and magnify filters, nearest means don't scale image, linear will scale.
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
@@ -102,6 +104,7 @@ export default class Canvas {
         let stride = 0;
         let offset = 0;
         this.gl.vertexAttribPointer(this.positionAttributeLocation, size, type, normalize, stride, offset);
+        this.gl.enableVertexAttribArray(this.positionAttributeLocation);
 
         this.gl.enableVertexAttribArray(this.texCoordLocation);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
@@ -111,6 +114,7 @@ export default class Canvas {
         stride = 0;
         offset = 0;
         this.gl.vertexAttribPointer(this.texCoordLocation, size, type, normalize, stride, offset);
+        this.gl.enableVertexAttribArray(this.texCoordLocation);
 
         this.gl.uniform2f(this.resolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height);
 

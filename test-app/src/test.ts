@@ -5,7 +5,7 @@ import Rectangle from "../../lib/Rectangle";
 const canvasElement = document.querySelector("#canvas");
 
 const image = new Image();
-image.src = "pfp.png";
+image.src = "minesweeper-one.svg";
 image.onload = () => {
     const canvas = new Canvas(canvasElement, image);
     console.log("image loaded");
