@@ -1,7 +1,5 @@
 import Rectangle from "../../lib/Rectangle";
-const rect = new Rectangle(0, 0, 100, 100, [1, 0, 0.5, 1], [10, 10]);
-console.log(rect);
-
+import * as G from "../../lib/Graphics";
 
 const canvas: any = document.querySelector("#canvas");
 

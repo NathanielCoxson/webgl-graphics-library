@@ -8,6 +8,8 @@ export default class Canvas {
     program: WebGLProgram | undefined;
     positionAttributeLocation: any;
     positionBuffer: any;
+    texCoordLocation: any;
+    texCoordBuffer: any;
     resolutionUniformLocation: any;
     colorUniformLocation: any;
     
@@ -15,7 +17,8 @@ export default class Canvas {
     rectangles: Rectangle[];
     
     constructor(
-        canvasElement: any 
+        canvasElement: any, 
+        image: HTMLImageElement 
     ) {
         if (!canvasElement) {
             this.success = false;
@@ -29,6 +32,8 @@ export default class Canvas {
             this.success = false;
             return;
         }
+
+        this.rectangles = [];
         
         const vertexShaderSource: any = document.querySelector("#vertex-shader-2d")?.textContent;
         const fragmentShaderSource: any = document.querySelector("#fragment-shader-2d")?.textContent;
@@ -50,45 +55,91 @@ export default class Canvas {
         }
 
         this.positionAttributeLocation = this.gl.getAttribLocation(this.program, "a_position");
-        this.positionBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        this.texCoordLocation = this.gl.getAttribLocation(this.program, "a_texCoord");
 
-        // Resize canvas and set viewport to fill canvas
+        // Create position buffer
+        this.positionBuffer = this.gl.createBuffer();
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        setRectangle(this.gl, 0, 0, 50, 50);
+
+        this.texCoordBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
+            0.0,  0.0,
+            1.0,  0.0,
+            0.0,  1.0,
+            0.0,  1.0,
+            1.0,  0.0,
+            1.0,  1.0,
+        ]), this.gl.STATIC_DRAW);
+
+        const texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+        // Set the parameters so we can render any size image.
+        // S and T are X and Y wrap respectively, clamp tells webgl not to repeat in these directions.
+        // Min and Mag are minimize and magnify filters, nearest means don't scale image, linear will scale.
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+
+        this.resolutionUniformLocation = this.gl.getUniformLocation(this.program, "u_resolution");
+
         resizeCanvasToDisplaySize(this.gl.canvas);
+
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-        // Clear canvas
         this.gl.clearColor(0, 0, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         this.gl.useProgram(this.program);
 
-        this.resolutionUniformLocation = this.gl.getUniformLocation(this.program, "u_resolution");
         this.gl.uniform2f(this.resolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height);
 
-        this.gl.enableVertexAttribArray(this.positionAttributeLocation);
-        const size = 2;
-        const type = this.gl.FLOAT;
-        const normalize = false;
-        const stride = 0;
-        const offset = 0;
-        this.gl.vertexAttribPointer(this.positionAttributeLocation, size, type, normalize, stride, offset);
-
         this.colorUniformLocation = this.gl.getUniformLocation(this.program, "u_color");
-
-        this.rectangles = [];
     }
 
     draw(rect: Rectangle): void {
+        if (!this.success) return;
         this.rectangles.push(rect);
     }
 
+    drawTexture(texture: {
+        width: number,
+        height: number,
+        image: HTMLImageElement
+    }) {
+        if (!this.success || !this.gl) return;
+        const tex = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
+
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, texture.image);
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        setRectangle(this.gl, 0, 0, texture.width, texture.height);
+        this.gl.enableVertexAttribArray(this.positionAttributeLocation);
+        this.gl.vertexAttribPointer(this.positionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
+        this.gl.enableVertexAttribArray(this.texCoordLocation);
+        this.gl.vertexAttribPointer(this.texCoordLocation, 2, this.gl.FLOAT, false, 0, 0);
+
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    }
+
     display() {
-        if (!this.gl) return;
+        if (!this.gl || !this.success) return;
         for (const rect of this.rectangles) {
-            setRectangle(this.gl, rect.position.x, rect.position.y, rect.x2 - rect.x1, rect.y2 - rect.y1);
-            this.gl.uniform4f(this.colorUniformLocation, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+            //this.gl.uniform4f(this.colorUniformLocation, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
+            if (rect.hasTexture) this.drawTexture(rect.textureInfo); 
         } 
     }
 }
@@ -148,10 +199,6 @@ function resizeCanvasToDisplaySize(canvas: any) {
   }
  
   return needResize;
-}
-
-function randomInt(range: number) {
-    return Math.floor(Math.random() * range);
 }
 
 function setRectangle(
