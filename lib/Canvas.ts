@@ -17,8 +17,7 @@ export default class Canvas {
     rectangles: Rectangle[];
     
     constructor(
-        canvasElement: any, 
-        image: HTMLImageElement 
+        canvasElement: any
     ) {
         if (!canvasElement) {
             this.success = false;
@@ -60,9 +59,7 @@ export default class Canvas {
         // Create position buffer
         this.positionBuffer = this.gl.createBuffer();
 
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-        setRectangle(this.gl, 0, 0, 50, 50);
-
+        // Set rectanglular texture clip space
         this.texCoordBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
@@ -73,19 +70,6 @@ export default class Canvas {
             1.0,  0.0,
             1.0,  1.0,
         ]), this.gl.STATIC_DRAW);
-
-        const texture = this.gl.createTexture();
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-
-        // Set the parameters so we can render any size image.
-        // S and T are X and Y wrap respectively, clamp tells webgl not to repeat in these directions.
-        // Min and Mag are minimize and magnify filters, nearest means don't scale image, linear will scale.
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
-
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
 
         this.resolutionUniformLocation = this.gl.getUniformLocation(this.program, "u_resolution");
 
@@ -128,6 +112,7 @@ export default class Canvas {
         setRectangle(this.gl, 0, 0, texture.width, texture.height);
         this.gl.enableVertexAttribArray(this.positionAttributeLocation);
         this.gl.vertexAttribPointer(this.positionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
         this.gl.enableVertexAttribArray(this.texCoordLocation);
         this.gl.vertexAttribPointer(this.texCoordLocation, 2, this.gl.FLOAT, false, 0, 0);

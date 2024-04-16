@@ -3,15 +3,15 @@ import { Color, Position } from "../../lib/Graphics";
 import Rectangle from "../../lib/Rectangle";
 
 const canvasElement = document.querySelector("#canvas");
+const canvas = new Canvas(canvasElement);
 
 const image = new Image();
 image.src = "minesweeper-one.svg";
 image.onload = () => {
-    const canvas = new Canvas(canvasElement, image);
     const rect = new Rectangle(5, 5, new Position(0, 0), new Color(0, 1, 0, 1));
     rect.setTexture(50, 50, image);
     canvas.draw(rect);
-    canvas.display();
+    requestAnimationFrame(() => canvas.display());
     console.log("image loaded");
 }
 
