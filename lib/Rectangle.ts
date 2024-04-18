@@ -1,30 +1,23 @@
-import { Shape, Position, Color } from "./Graphics";
+import { Shape } from "./Graphics";
 export default class Rectangle extends Shape {
 
-    x1: number;
-    x2: number;
-    y1: number;
-    y2: number;
-    width: number;
+    width:  number;
     height: number;
+
     textureInfo: {
-        width: number,
+        width:  number,
         height: number,
-        image: any 
+        image:  any 
     };
-    hasTexture: boolean;
+    hasTexture:   boolean;
 
     constructor(
         width: number,
         height: number,
-        position: Position,
-        color: Color 
     ) {
-        super(position, color);
-        this.x1 = position.x;
-        this.x2 = position.x + width;
-        this.y1 = position.y;
-        this.y2 = position.y + height;
+        super();
+        this.width = width;
+        this.height = height;
     }
 
     setTexture(

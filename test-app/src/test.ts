@@ -1,5 +1,5 @@
 import Canvas from "../../lib/Canvas";
-import { Color, Position } from "../../lib/Graphics";
+import * as G from "../../lib/Graphics";
 import Rectangle from "../../lib/Rectangle";
 
 const canvasElement = document.querySelector("#canvas");
@@ -8,7 +8,8 @@ const canvas = new Canvas(canvasElement);
 const image = new Image();
 image.src = "minesweeper-one.svg";
 image.onload = () => {
-    const rect = new Rectangle(5, 5, new Position(0, 0), new Color(0, 1, 0, 1));
+    const rect = new Rectangle(50, 50);
+    rect.setPosition(new G.Position(100, 0));
     rect.setTexture(50, 50, image);
     canvas.draw(rect);
     requestAnimationFrame(() => canvas.display());
