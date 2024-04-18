@@ -1,4 +1,5 @@
 import Rectangle from "./Rectangle";
+import * as G from "./Graphics";
 
 export default class Canvas {
     gl: WebGLRenderingContext | null;
@@ -92,11 +93,14 @@ export default class Canvas {
         this.rectangles.push(rect);
     }
 
-    drawTexture(texture: {
-        width: number,
-        height: number,
-        image: HTMLImageElement
-    }) {
+    drawTexture(
+        texture: {
+            width: number,
+            height: number,
+            image: HTMLImageElement, 
+        },
+        position: G.Position
+    ) {
         if (!this.success || !this.gl) return;
         const tex = this.gl.createTexture();
         this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
@@ -109,7 +113,7 @@ export default class Canvas {
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, texture.image);
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-        setRectangle(this.gl, 0, 0, texture.width, texture.height);
+        setRectangle(this.gl, position.x, position.y, texture.width, texture.height);
         this.gl.enableVertexAttribArray(this.positionAttributeLocation);
         this.gl.vertexAttribPointer(this.positionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
 
@@ -124,7 +128,7 @@ export default class Canvas {
         if (!this.gl || !this.success) return;
         for (const rect of this.rectangles) {
             //this.gl.uniform4f(this.colorUniformLocation, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
-            if (rect.hasTexture) this.drawTexture(rect.textureInfo); 
+            if (rect.hasTexture) this.drawTexture(rect.textureInfo, rect.position); 
         } 
     }
 }

@@ -1,13 +1,27 @@
 export class Shape {
     position: Position;
     color: Color;
+    hasFillColor: boolean;
 
-    constructor(
-        position: Position, 
-        color: Color 
-    ) {
-        this.position = position;
+    constructor() {
+        this.position = new Position(0, 0);
+    }
+
+    setFillColor(
+        color: Color
+    ): void {
+        this.hasFillColor = true;
         this.color = color;
+    }
+
+    removeFillColor(): void {
+        this.hasFillColor = false;
+    }
+
+    setPosition(
+        position: Position
+    ): void {
+        this.position = position;
     }
 }
 
