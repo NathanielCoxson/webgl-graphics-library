@@ -4,14 +4,18 @@ import * as G from "./Graphics";
 export default class Canvas {
     gl: WebGLRenderingContext | null;
     success: boolean;
-    vertexShader: WebGLShader | undefined;
-    fragmentShader: WebGLShader | undefined;
-    program: WebGLProgram | undefined;
-    positionAttributeLocation: any;
+    vertexShader:       WebGLShader | undefined;
+    texFragmentShader:  WebGLShader | undefined;
+    fillFragmentShader: WebGLShader | undefined;
+    texProgram:  WebGLProgram | undefined;
+    fillProgram: WebGLProgram | undefined;
+    texPositionAttributeLocation: any;
+    fillPositionAttributeLocation: any;
     positionBuffer: any;
     texCoordLocation: any;
     texCoordBuffer: any;
-    resolutionUniformLocation: any;
+    texResolutionUniformLocation: any;
+    fillResolutionUniformLocation: any;
     colorUniformLocation: any;
     
     // Shape buffers
@@ -37,25 +41,37 @@ export default class Canvas {
         
         const vertexShaderSource: any = document.querySelector("#vertex-shader-2d")?.textContent;
         const fragmentShaderSource: any = document.querySelector("#fragment-shader-2d")?.textContent;
+        const fillFragmentShaderSource: any = document.querySelector("#fragment-shader-vertex-color")?.textContent;
         this.vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, vertexShaderSource);
         if (!this.vertexShader) {
             this.success = false;
             return;
         } 
-        this.fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, fragmentShaderSource);
-        if (!this.fragmentShader) {
+        this.texFragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, fragmentShaderSource);
+        if (!this.texFragmentShader) {
             this.success = false;
             return;
         } 
-
-        this.program = createProgram(this.gl, this.vertexShader, this.fragmentShader);
-        if (!this.program) {
+        this.fillFragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, fillFragmentShaderSource);
+        if (!this.fillFragmentShader) {
             this.success = false;
             return;
         }
 
-        this.positionAttributeLocation = this.gl.getAttribLocation(this.program, "a_position");
-        this.texCoordLocation = this.gl.getAttribLocation(this.program, "a_texCoord");
+        this.texProgram = createProgram(this.gl, this.vertexShader, this.texFragmentShader);
+        if (!this.texProgram) {
+            this.success = false;
+            return;
+        }
+        this.fillProgram = createProgram(this.gl, this.vertexShader, this.fillFragmentShader);
+        if (!this.fillProgram) {
+            this.success = false;
+            return;
+        }
+
+        this.texPositionAttributeLocation = this.gl.getAttribLocation(this.texProgram, "a_position");
+        this.fillPositionAttributeLocation = this.gl.getAttribLocation(this.fillProgram, "a_position");
+        this.texCoordLocation = this.gl.getAttribLocation(this.texProgram, "a_texCoord");
 
         // Create position buffer
         this.positionBuffer = this.gl.createBuffer();
@@ -72,20 +88,23 @@ export default class Canvas {
             1.0,  1.0,
         ]), this.gl.STATIC_DRAW);
 
-        this.resolutionUniformLocation = this.gl.getUniformLocation(this.program, "u_resolution");
+        this.texResolutionUniformLocation = this.gl.getUniformLocation(this.texProgram, "u_resolution");
+        this.fillResolutionUniformLocation = this.gl.getUniformLocation(this.fillProgram, "u_resolution");
 
         resizeCanvasToDisplaySize(this.gl.canvas);
+
+        this.gl.useProgram(this.texProgram);
+        this.gl.uniform2f(this.texResolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height);
+        this.gl.useProgram(this.fillProgram);
+        this.gl.uniform2f(this.fillResolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height);
 
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
         this.gl.clearColor(0, 0, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-        this.gl.useProgram(this.program);
 
-        this.gl.uniform2f(this.resolutionUniformLocation, this.gl.canvas.width, this.gl.canvas.height);
-
-        this.colorUniformLocation = this.gl.getUniformLocation(this.program, "u_color");
+        this.colorUniformLocation = this.gl.getUniformLocation(this.fillProgram, "u_color");
     }
 
     draw(rect: Rectangle): void {
@@ -101,34 +120,67 @@ export default class Canvas {
         },
         position: G.Position
     ) {
+        console.log('texture');
         if (!this.success || !this.gl) return;
+        if (!this.texProgram) return;
+
+        // Use texture program
+        this.gl.useProgram(this.texProgram);
+
+        // Bind texture
         const tex = this.gl.createTexture();
         this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
 
+        // Set texture parameters to fill contents 
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 
+        // Load the image into the texture
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, texture.image);
 
+        // Bind position buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
         setRectangle(this.gl, position.x, position.y, texture.width, texture.height);
-        this.gl.enableVertexAttribArray(this.positionAttributeLocation);
-        this.gl.vertexAttribPointer(this.positionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(this.texPositionAttributeLocation);
+        this.gl.vertexAttribPointer(this.texPositionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
 
+        // Bind texture coordinate buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
         this.gl.enableVertexAttribArray(this.texCoordLocation);
         this.gl.vertexAttribPointer(this.texCoordLocation, 2, this.gl.FLOAT, false, 0, 0);
 
+        // Draw arrays
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    }
+
+    drawFilled(rect: Rectangle) {
+        if (!this.gl || !this.success) return;
+        if (!rect.hasFillColor) return;
+        if (!this.fillProgram) return;
+
+        // Use fill program
+        this.gl.useProgram(this.fillProgram);
+
+        // Set color uniform
+        this.gl.uniform4f(this.colorUniformLocation, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
+
+        // Bind position buffer
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        setRectangle(this.gl, rect.position.x, rect.position.y, rect.width, rect.height); 
+        this.gl.enableVertexAttribArray(this.fillPositionAttributeLocation);
+        this.gl.vertexAttribPointer(this.fillPositionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
+
+        // Draw arrays
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
     }
 
     display() {
         if (!this.gl || !this.success) return;
         for (const rect of this.rectangles) {
-            //this.gl.uniform4f(this.colorUniformLocation, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
             if (rect.hasTexture) this.drawTexture(rect.textureInfo, rect.position); 
+            else if (rect.hasFillColor) this.drawFilled(rect);
         } 
     }
 }

@@ -7,14 +7,28 @@ const canvas = new Canvas(canvasElement);
 
 const image = new Image();
 image.src = "minesweeper-one.svg";
+
+const rect = new Rectangle(100, 100);
+rect.setPosition(new G.Position(100, 0));
 image.onload = () => {
-    const rect = new Rectangle(50, 50);
-    rect.setPosition(new G.Position(100, 0));
     rect.setTexture(50, 50, image);
     canvas.draw(rect);
-    requestAnimationFrame(() => canvas.display());
-    console.log("image loaded");
 }
+
+const rect2 = new Rectangle(100, 100);
+rect2.setPosition(new G.Position(0, 0));
+rect2.setFillColor(new G.Color(1, 0, 0.5, 1));
+canvas.draw(rect2);
+
+
+// Basic rendering function
+function render() {
+    canvas.display();
+    window.requestAnimationFrame(render);
+}
+window.requestAnimationFrame(render);
+
+
 
 //for (let i = 0; i < 10; i++) {
 //    canvas.draw(new Rectangle(5, 5, new Position(10 * i, 10 * i), new Color(0, 1, 0, 1)));
