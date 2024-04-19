@@ -1,4 +1,5 @@
 import Rectangle from "./Rectangle";
+import Circle from "./Circle";
 import * as G from "./Graphics";
 
 export default class Canvas {
@@ -20,6 +21,7 @@ export default class Canvas {
     
     // Shape buffers
     rectangles: Rectangle[];
+    circles: Circle[];
     
     constructor(
         canvasElement: any
@@ -38,6 +40,7 @@ export default class Canvas {
         }
 
         this.rectangles = [];
+        this.circles    = [];
         
         const vertexShaderSource: any = document.querySelector("#vertex-shader-2d")?.textContent;
         const fragmentShaderSource: any = document.querySelector("#fragment-shader-2d")?.textContent;
@@ -120,7 +123,6 @@ export default class Canvas {
         },
         position: G.Position
     ) {
-        console.log('texture');
         if (!this.success || !this.gl) return;
         if (!this.texProgram) return;
 
@@ -176,12 +178,38 @@ export default class Canvas {
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
     }
 
+    drawCircle(circle: Circle) {
+        this.circles.push(circle);
+    }
+
+    displayCircle(circle: Circle) {
+        if (!this.gl || !this.success) return;
+        if (!this.fillProgram) return;
+
+        this.gl.useProgram(this.fillProgram);
+
+        // Set color uniform
+        this.gl.uniform4f(this.colorUniformLocation, 0, 1, 0, 1);
+
+        // Bind position buffer
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        setCircle(this.gl, circle.position.x, circle.position.y, circle.radius, circle.vertexCount);
+        this.gl.enableVertexAttribArray(this.fillPositionAttributeLocation);
+        this.gl.vertexAttribPointer(this.fillPositionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
+
+        // Draw arrays
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 3 * circle.vertexCount);
+    }
+
     display() {
         if (!this.gl || !this.success) return;
         for (const rect of this.rectangles) {
             if (rect.hasTexture) this.drawTexture(rect.textureInfo, rect.position); 
             else if (rect.hasFillColor) this.drawFilled(rect);
         } 
+        for (const c of this.circles) {
+            this.displayCircle(c);
+        }
     }
 }
 
@@ -264,4 +292,30 @@ function setRectangle(
         x2, y1,
         x2, y2
     ]), gl.STATIC_DRAW);
+}
+
+function setCircle(
+    gl: WebGLRenderingContext,
+    x: number,
+    y: number,
+    r: number,
+    v: number
+) {
+    const radianInterval = (2 * Math.PI) / v;
+
+    const vertices: number[] = [];
+    for (let i = 0; i < v; i++) {
+        vertices.push(
+            0 + x, 0 + y,
+            Math.cos(radianInterval * i) * r + x, Math.sin(radianInterval * i) * r + y,
+            Math.cos(radianInterval * ((i+1)%v)) * r + x, Math.sin(radianInterval * ((i+1)%v)) * r + y
+        );
+        console.log(
+            0 + x, 0 + y,
+            (Math.cos(radianInterval * i) + x) * r, (Math.sin(radianInterval * i) + y) * r,
+            (Math.cos(radianInterval * ((i+1)%v)) + x) * r, (Math.sin(radianInterval * ((i+1)%v)) + y) * r
+        );
+    }
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 }
