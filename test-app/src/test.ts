@@ -1,6 +1,7 @@
 import Canvas from "../../lib/Canvas";
 import * as G from "../../lib/Graphics";
 import Rectangle from "../../lib/Rectangle";
+import Circle from "../../lib/Circle";
 
 const canvasElement = document.querySelector("#canvas");
 const canvas = new Canvas(canvasElement);
@@ -20,13 +21,16 @@ rect2.setPosition(new G.Position(0, 0));
 rect2.setFillColor(new G.Color(1, 0, 0.5, 1));
 canvas.draw(rect2);
 
+const circle = new Circle(25, 30);
+circle.setPosition(new G.Position(50, 50));
+canvas.drawCircle(circle);
 
 // Basic rendering function
 function render() {
     canvas.display();
     window.requestAnimationFrame(render);
 }
-window.requestAnimationFrame(render);
+window.requestAnimationFrame(() => canvas.display());
 
 
 
