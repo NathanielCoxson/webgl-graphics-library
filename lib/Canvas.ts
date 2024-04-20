@@ -193,7 +193,7 @@ export default class Canvas {
 
         // Bind position buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-        setCircle(this.gl, circle.position.x, circle.position.y, circle.radius, circle.vertexCount);
+        setCircle(this.gl, circle);
         this.gl.enableVertexAttribArray(this.fillPositionAttributeLocation);
         this.gl.vertexAttribPointer(this.fillPositionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
 
@@ -210,6 +210,8 @@ export default class Canvas {
         for (const c of this.circles) {
             this.displayCircle(c);
         }
+        this.rectangles = [];
+        this.circles = [];
     }
 }
 
@@ -296,24 +298,22 @@ function setRectangle(
 
 function setCircle(
     gl: WebGLRenderingContext,
-    x: number,
-    y: number,
-    r: number,
-    v: number
+    circle: Circle
 ) {
+    const { x, y } = circle.position;
+    const { x: xOrigin, y: yOrigin } = circle.relativeOrigin;
+    const { radius: r, vertexCount: v } = circle;
     const radianInterval = (2 * Math.PI) / v;
 
     const vertices: number[] = [];
     for (let i = 0; i < v; i++) {
         vertices.push(
-            0 + x, 0 + y,
-            Math.cos(radianInterval * i) * r + x, Math.sin(radianInterval * i) * r + y,
-            Math.cos(radianInterval * ((i+1)%v)) * r + x, Math.sin(radianInterval * ((i+1)%v)) * r + y
-        );
-        console.log(
-            0 + x, 0 + y,
-            (Math.cos(radianInterval * i) + x) * r, (Math.sin(radianInterval * i) + y) * r,
-            (Math.cos(radianInterval * ((i+1)%v)) + x) * r, (Math.sin(radianInterval * ((i+1)%v)) + y) * r
+            0 + x + r - xOrigin,
+            0 + y + r - yOrigin,
+            Math.cos(radianInterval * i) * r + x + r - xOrigin,
+            Math.sin(radianInterval * i) * r + y + r - yOrigin,
+            Math.cos(radianInterval * ((i+1)%v)) * r + x + r - xOrigin,
+            Math.sin(radianInterval * ((i+1)%v)) * r + y + r - yOrigin,
         );
     }
 
