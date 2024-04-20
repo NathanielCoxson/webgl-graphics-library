@@ -13,24 +13,31 @@ const rect = new Rectangle(100, 100);
 rect.setPosition(new G.Position(100, 0));
 image.onload = () => {
     rect.setTexture(50, 50, image);
-    canvas.draw(rect);
 }
 
 const rect2 = new Rectangle(100, 100);
 rect2.setPosition(new G.Position(0, 0));
 rect2.setFillColor(new G.Color(1, 0, 0.5, 1));
-canvas.draw(rect2);
 
-const circle = new Circle(25, 30);
+const radius = 25;
+const circle = new Circle(radius, 30);
 circle.setPosition(new G.Position(50, 50));
-canvas.drawCircle(circle);
+circle.setOrigin(radius, radius);
 
 // Basic rendering function
 function render() {
+    // Update
+
+    // Draw
+    canvas.draw(rect);
+    canvas.draw(rect2);
+    canvas.drawCircle(circle);
+
+    // Display
     canvas.display();
     window.requestAnimationFrame(render);
 }
-window.requestAnimationFrame(() => canvas.display());
+window.requestAnimationFrame(() => render());
 
 
 
