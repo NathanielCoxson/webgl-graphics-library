@@ -22,6 +22,10 @@ export default class Canvas {
     // Shape buffers
     rectangles: Rectangle[];
     circles: Circle[];
+
+    // Canvas info
+    width:  number;
+    height: number
     
     constructor(
         canvasElement: any
@@ -41,6 +45,9 @@ export default class Canvas {
 
         this.rectangles = [];
         this.circles    = [];
+
+        this.width  = this.gl.canvas.width;
+        this.height = this.gl.canvas.height;
         
         const vertexShaderSource: any = document.querySelector("#vertex-shader-2d")?.textContent;
         const fragmentShaderSource: any = document.querySelector("#fragment-shader-2d")?.textContent;
@@ -79,17 +86,8 @@ export default class Canvas {
         // Create position buffer
         this.positionBuffer = this.gl.createBuffer();
 
-        // Set rectanglular texture clip space
+        // Create texture position buffer
         this.texCoordBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
-            0.0,  0.0,
-            1.0,  0.0,
-            0.0,  1.0,
-            0.0,  1.0,
-            1.0,  0.0,
-            1.0,  1.0,
-        ]), this.gl.STATIC_DRAW);
 
         this.texResolutionUniformLocation = this.gl.getUniformLocation(this.texProgram, "u_resolution");
         this.fillResolutionUniformLocation = this.gl.getUniformLocation(this.fillProgram, "u_resolution");
@@ -150,6 +148,15 @@ export default class Canvas {
 
         // Bind texture coordinate buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([
+            0.0,  0.0,
+            1.0,  0.0,
+            0.0,  1.0,
+            0.0,  1.0,
+            1.0,  0.0,
+            1.0,  1.0,
+        ]), this.gl.STATIC_DRAW);
         this.gl.enableVertexAttribArray(this.texCoordLocation);
         this.gl.vertexAttribPointer(this.texCoordLocation, 2, this.gl.FLOAT, false, 0, 0);
 
@@ -182,6 +189,79 @@ export default class Canvas {
         this.circles.push(circle);
     }
 
+    drawTexCircle(circle: Circle) {
+        if (!this.gl || !this.success) return;
+        if (!this.texProgram) return;
+
+        const { vertexCount: v } = circle;
+        const radianInterval = (2 * Math.PI) / v;
+
+        const vertices: number[] = [];
+        for (let i = 0; i < v; i++) {
+            
+            // Explanation of calculation for circular clip 
+            // path of the texture:
+            //
+            // Think of image as a clip space from 0.0 to 1.0 
+            // in the x direction and from 0.0 to 1.0 in y 
+            // direction going down, same with the window.
+            //
+            // Cosine and sine give the points around a 
+            // circle that rotates clockwise in this case 
+            // because the grid is reflected along the x axis.
+            //
+            // The center of the texture is always at (0.5, 0.5) 
+            // while the other two points
+            // are determined using the cosine and sine values of 
+            // the triangular segment of the shape.
+            //
+            // The outside vectors must be shifted to fit the plane, 
+            // since the center is translated to (0.5, 0.5), the 
+            // outside points need to be divided by two,
+            // since the window is now half the size, and then 
+            // translated to (0.5, 0.5).
+            vertices.push(
+                0 + 0.5,
+                0 + 0.5,
+                Math.cos(radianInterval * i) / 2 + 0.5,
+                Math.sin(radianInterval * i) / 2 + 0.5,
+                Math.cos(radianInterval * ((i+1)%v)) / 2 + 0.5,
+                Math.sin(radianInterval * ((i+1)%v)) / 2 + 0.5,
+            );
+        }
+
+        // Use texture program
+        this.gl.useProgram(this.texProgram);
+
+        // Bind texture
+        const tex = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
+
+        // Set texture parameters to fill contents 
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+
+        // Load the image into the texture
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, circle.textureInfo.image);
+
+        // Bind position buffer
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        setCircle(this.gl, circle);
+        this.gl.enableVertexAttribArray(this.texPositionAttributeLocation);
+        this.gl.vertexAttribPointer(this.texPositionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
+
+        // Bind texture coordinate buffer
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.texCoordBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW);
+        this.gl.enableVertexAttribArray(this.texCoordLocation);
+        this.gl.vertexAttribPointer(this.texCoordLocation, 2, this.gl.FLOAT, false, 0, 0);
+
+        // Draw arrays
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 3 * circle.vertexCount);
+    }
+
     displayCircle(circle: Circle) {
         if (!this.gl || !this.success) return;
         if (!this.fillProgram) return;
@@ -208,7 +288,8 @@ export default class Canvas {
             else if (rect.hasFillColor) this.drawFilled(rect);
         } 
         for (const c of this.circles) {
-            this.displayCircle(c);
+            if (c.hasTexture) this.drawTexCircle(c);
+            else this.displayCircle(c);
         }
         this.rectangles = [];
         this.circles = [];

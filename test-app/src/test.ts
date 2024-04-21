@@ -6,23 +6,25 @@ import Circle from "../../lib/Circle";
 const canvasElement = document.querySelector("#canvas");
 const canvas = new Canvas(canvasElement);
 
-const image = new Image();
-image.src = "minesweeper-one.svg";
+const radius = 25;
+const circle = new Circle(radius, 30);
+circle.setPosition(new G.Position(50, 50));
+circle.setOrigin(radius, radius);
 
 const rect = new Rectangle(100, 100);
 rect.setPosition(new G.Position(100, 0));
+
+const image = new Image();
+image.src = "minesweeper-one.svg";
 image.onload = () => {
     rect.setTexture(50, 50, image);
+    circle.setTexture(50, 50, image);
 }
 
 const rect2 = new Rectangle(100, 100);
 rect2.setPosition(new G.Position(0, 0));
 rect2.setFillColor(new G.Color(1, 0, 0.5, 1));
 
-const radius = 25;
-const circle = new Circle(radius, 30);
-circle.setPosition(new G.Position(50, 50));
-circle.setOrigin(radius, radius);
 
 // Basic rendering function
 function render() {
