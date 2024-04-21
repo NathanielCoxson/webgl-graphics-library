@@ -1,2 +1,2 @@
 # webgl-graphics-library
-Graphics library for making games with WebGL
+Graphics library for making 2D games with WebGL
