@@ -1,7 +1,18 @@
 export class Shape {
     position: Position;
+
+    width:  number;
+    height: number;
+
     color: Color;
     hasFillColor: boolean;
+
+    textureInfo: {
+        width:  number,
+        height: number,
+        image:  any 
+    };
+    hasTexture:   boolean;
 
     constructor() {
         this.position = new Position(0, 0);
@@ -11,11 +22,28 @@ export class Shape {
         color: Color
     ): void {
         this.hasFillColor = true;
+        this.hasTexture = false;
         this.color = color;
     }
 
     removeFillColor(): void {
         this.hasFillColor = false;
+        this.color = new Color(0, 0, 0, 0);
+    }
+
+    setTexture(
+        width: number,
+        height: number,
+        image: HTMLImageElement
+    ): void {
+        if (!this.hasTexture) this.hasTexture = true;
+        this.hasFillColor = false;
+        this.textureInfo = { width, height, image };
+    }
+
+    removeTexture(): void {
+        this.hasTexture = false;
+        this.textureInfo = { ...this.textureInfo, image: undefined };
     }
 
     setPosition(
