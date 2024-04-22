@@ -1,6 +1,5 @@
 import Rectangle from "./Rectangle";
 import Circle from "./Circle";
-import * as G from "./Graphics";
 
 export default class Canvas {
     gl: WebGLRenderingContext | null;
@@ -28,7 +27,7 @@ export default class Canvas {
     height: number
     
     constructor(
-        canvasElement: any
+        canvasElement: any 
     ) {
         if (!canvasElement) {
             this.success = false;
@@ -46,8 +45,8 @@ export default class Canvas {
         this.rectangles = [];
         this.circles    = [];
 
-        this.width  = this.gl.canvas.width;
-        this.height = this.gl.canvas.height;
+        this.width  = canvasElement.clientWidth;
+        this.height = canvasElement.clientHeight;
         
         const vertexShaderSource: any = document.querySelector("#vertex-shader-2d")?.textContent;
         const fragmentShaderSource: any = document.querySelector("#fragment-shader-2d")?.textContent;
@@ -166,7 +165,13 @@ export default class Canvas {
         this.gl.useProgram(this.fillProgram);
 
         // Set color uniform
-        this.gl.uniform4f(this.colorUniformLocation, rect.color.r, rect.color.g, rect.color.b, rect.color.a);
+        this.gl.uniform4f(
+            this.colorUniformLocation,
+            rect.color.r,
+            rect.color.g,
+            rect.color.b,
+            rect.color.a
+        );
 
         // Bind position buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
@@ -255,14 +260,20 @@ export default class Canvas {
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 3 * circle.vertexCount);
     }
 
-    displayCircle(circle: Circle) {
+    drawFilledCircle(circle: Circle) {
         if (!this.gl || !this.success) return;
         if (!this.fillProgram) return;
 
         this.gl.useProgram(this.fillProgram);
 
         // Set color uniform
-        this.gl.uniform4f(this.colorUniformLocation, 0, 1, 0, 1);
+        this.gl.uniform4f(
+            this.colorUniformLocation,
+            circle.color.r,
+            circle.color.g,
+            circle.color.b,
+            circle.color.a
+        );
 
         // Bind position buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
@@ -282,7 +293,7 @@ export default class Canvas {
         } 
         for (const c of this.circles) {
             if (c.hasTexture) this.drawTexCircle(c);
-            else this.displayCircle(c);
+            else if (c.hasFillColor) this.drawFilledCircle(c);
         }
         this.rectangles = [];
         this.circles = [];

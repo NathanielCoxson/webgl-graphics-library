@@ -18,6 +18,8 @@ export class Shape {
     constructor() {
         this.position = new Position(0, 0);
         this.relativeOrigin = new Position(0, 0);
+        this.hasTexture = false;
+        this.hasFillColor = false;
     }
 
     setFillColor(
