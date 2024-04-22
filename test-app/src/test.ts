@@ -22,7 +22,8 @@ image.onload = () => {
 }
 
 const rect2 = new Rectangle(100, 100);
-rect2.setPosition(new G.Position(0, 0));
+rect2.setPosition(new G.Position(50, 50));
+rect2.setOrigin(rect2.width / 2, rect2.height / 2);
 rect2.setFillColor(new G.Color(1, 0, 0.5, 1));
 
 

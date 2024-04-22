@@ -113,14 +113,7 @@ export default class Canvas {
         this.rectangles.push(rect);
     }
 
-    drawTexture(
-        texture: {
-            width: number,
-            height: number,
-            image: HTMLImageElement, 
-        },
-        position: G.Position
-    ) {
+    drawTexRect(rect: Rectangle) {
         if (!this.success || !this.gl) return;
         if (!this.texProgram) return;
 
@@ -138,11 +131,11 @@ export default class Canvas {
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 
         // Load the image into the texture
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, texture.image);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, rect.textureInfo.image);
 
         // Bind position buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-        setRectangle(this.gl, position.x, position.y, texture.width, texture.height);
+        setRectangle(this.gl, rect, rect.textureInfo.width, rect.textureInfo.height);
         this.gl.enableVertexAttribArray(this.texPositionAttributeLocation);
         this.gl.vertexAttribPointer(this.texPositionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
 
@@ -164,7 +157,7 @@ export default class Canvas {
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
     }
 
-    drawFilled(rect: Rectangle) {
+    drawFilledRect(rect: Rectangle) {
         if (!this.gl || !this.success) return;
         if (!rect.hasFillColor) return;
         if (!this.fillProgram) return;
@@ -177,7 +170,7 @@ export default class Canvas {
 
         // Bind position buffer
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-        setRectangle(this.gl, rect.position.x, rect.position.y, rect.width, rect.height); 
+        setRectangle(this.gl, rect, rect.width, rect.height); 
         this.gl.enableVertexAttribArray(this.fillPositionAttributeLocation);
         this.gl.vertexAttribPointer(this.fillPositionAttributeLocation, 2, this.gl.FLOAT, false, 0, 0);
 
@@ -284,8 +277,8 @@ export default class Canvas {
     display() {
         if (!this.gl || !this.success) return;
         for (const rect of this.rectangles) {
-            if (rect.hasTexture) this.drawTexture(rect.textureInfo, rect.position); 
-            else if (rect.hasFillColor) this.drawFilled(rect);
+            if (rect.hasTexture) this.drawTexRect(rect); 
+            else if (rect.hasFillColor) this.drawFilledRect(rect);
         } 
         for (const c of this.circles) {
             if (c.hasTexture) this.drawTexCircle(c);
@@ -355,11 +348,13 @@ function resizeCanvasToDisplaySize(canvas: any) {
 
 function setRectangle(
     gl: WebGLRenderingContext,
-    x: number,
-    y: number,
+    rect: Rectangle,
     width: number,
-    height: number
+    height: number,
 ) {
+    const x = rect.position.x - rect.relativeOrigin.x;
+    const y = rect.position.y - rect.relativeOrigin.y;
+
     const x1 = x;
     const x2 = x + width;
     const y1 = y;
@@ -381,20 +376,20 @@ function setCircle(
     gl: WebGLRenderingContext,
     circle: Circle
 ) {
-    const { x, y } = circle.position;
-    const { x: xOrigin, y: yOrigin } = circle.relativeOrigin;
+    const x = circle.position.x - circle.relativeOrigin.x;
+    const y = circle.position.y - circle.relativeOrigin.y;
     const { radius: r, vertexCount: v } = circle;
     const radianInterval = (2 * Math.PI) / v;
 
     const vertices: number[] = [];
     for (let i = 0; i < v; i++) {
         vertices.push(
-            0 + x + r - xOrigin,
-            0 + y + r - yOrigin,
-            Math.cos(radianInterval * i) * r + x + r - xOrigin,
-            Math.sin(radianInterval * i) * r + y + r - yOrigin,
-            Math.cos(radianInterval * ((i+1)%v)) * r + x + r - xOrigin,
-            Math.sin(radianInterval * ((i+1)%v)) * r + y + r - yOrigin,
+            0 + x + r,
+            0 + y + r,
+            Math.cos(radianInterval * i) * r + x + r,
+            Math.sin(radianInterval * i) * r + y + r,
+            Math.cos(radianInterval * ((i+1)%v)) * r + x + r,
+            Math.sin(radianInterval * ((i+1)%v)) * r + y + r,
         );
     }
 

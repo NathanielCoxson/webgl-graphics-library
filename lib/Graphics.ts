@@ -1,5 +1,6 @@
 export class Shape {
     position: Position;
+    relativeOrigin: Position;
 
     width:  number;
     height: number;
@@ -16,6 +17,7 @@ export class Shape {
 
     constructor() {
         this.position = new Position(0, 0);
+        this.relativeOrigin = new Position(0, 0);
     }
 
     setFillColor(
@@ -50,6 +52,14 @@ export class Shape {
         position: Position
     ): void {
         this.position = position;
+    }
+
+    setOrigin(
+        x: number,
+        y: number
+    ): void {
+        this.relativeOrigin.x = x;
+        this.relativeOrigin.y = y;
     }
 }
 
