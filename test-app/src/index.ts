@@ -52,7 +52,6 @@ function render() {
 
     // Process events
     for (const [j, i] of clickEvents) {
-        rectangles[0].removeTexture();
         rectangles[4 * i + j + i].removeTexture();
     }
     clickEvents = [];
@@ -83,7 +82,7 @@ function render() {
 
     // Draw
     for (const r of rectangles) {
-        canvas.draw(r);
+        canvas.drawRect(r);
     }
     for (const c of circles) {
         canvas.drawCircle(c);

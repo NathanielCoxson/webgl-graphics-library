@@ -107,7 +107,7 @@ export default class Canvas {
         this.colorUniformLocation = this.gl.getUniformLocation(this.fillProgram, "u_color");
     }
 
-    draw(rect: Rectangle): void {
+    drawRect(rect: Rectangle): void {
         if (!this.success) return;
         this.rectangles.push(rect);
     }
@@ -184,6 +184,7 @@ export default class Canvas {
     }
 
     drawCircle(circle: Circle) {
+        if (!this.success) return;
         this.circles.push(circle);
     }
 
