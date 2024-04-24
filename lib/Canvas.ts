@@ -1,5 +1,8 @@
-import Rectangle from "./Rectangle";
-import Circle from "./Circle";
+import Rectangle          from "./Rectangle";
+import Circle             from "./Circle";
+import vertexShaderText   from "./shaders/vertexShader";
+import fillFragShaderText from "./shaders/fillFragmentShader";
+import texFragShaderText  from "./shaders/texFragmentShader";
 
 export default class Canvas {
     gl: WebGLRenderingContext | null;
@@ -48,15 +51,19 @@ export default class Canvas {
         this.width  = canvasElement.clientWidth;
         this.height = canvasElement.clientHeight;
         
-        const vertexShaderSource: any = document.querySelector("#vertex-shader-2d")?.textContent;
-        const fragmentShaderSource: any = document.querySelector("#fragment-shader-2d")?.textContent;
-        const fillFragmentShaderSource: any = document.querySelector("#fragment-shader-vertex-color")?.textContent;
+        //const vertexShaderSource: any = document.querySelector("#vertex-shader-2d")?.textContent;
+        //const fragmentShaderSource: any = document.querySelector("#fragment-shader-2d")?.textContent;
+        //const fillFragmentShaderSource: any = document.querySelector("#fragment-shader-vertex-color")?.textContent;
+        const vertexShaderSource = vertexShaderText;
+        const texFragmentShaderSource = texFragShaderText;
+        const fillFragmentShaderSource = fillFragShaderText;
+
         this.vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, vertexShaderSource);
         if (!this.vertexShader) {
             this.success = false;
             return;
         } 
-        this.texFragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, fragmentShaderSource);
+        this.texFragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, texFragmentShaderSource);
         if (!this.texFragmentShader) {
             this.success = false;
             return;
