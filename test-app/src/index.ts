@@ -32,11 +32,12 @@ image.src = "minesweeper-one.svg";
 image.onload = () => {
     for (const r of rectangles) {
         r.setTexture(64, 64, image);
+        circle.setTexture(50, 50, image);
     }
 }
 
 let clickEvents: [number, number][] = [];
-canvasElement?.addEventListener("mousedown", (e) => {
+canvasElement?.addEventListener("mousedown", (e: any) => {
     e.preventDefault();
     const rect = canvasElement.getBoundingClientRect();
     const x = e.clientX - rect.left; //x position within the element.
@@ -69,6 +70,7 @@ function render() {
         moveDown = true;
     }
 
+    // Movement
     if (moveRight) {
         circle.position.x += 0.8;
     } else {
@@ -79,6 +81,7 @@ function render() {
     } else {
         circle.position.y -= 0.8;
     }
+    circle.setRotation(circle.rotation + 1);
 
     // Draw
     for (const r of rectangles) {
