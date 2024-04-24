@@ -5,6 +5,8 @@ export class Shape {
     width:  number;
     height: number;
 
+    rotation: number;
+
     color: Color;
     hasFillColor: boolean;
 
@@ -20,6 +22,7 @@ export class Shape {
         this.relativeOrigin = new Position(0, 0);
         this.hasTexture = false;
         this.hasFillColor = false;
+        this.rotation = 0;
     }
 
     setFillColor(
@@ -62,6 +65,14 @@ export class Shape {
     ): void {
         this.relativeOrigin.x = x;
         this.relativeOrigin.y = y;
+    }
+
+    setRotation(deg: number): void {
+        this.rotation = deg;
+    }
+
+    getRotationRadians(): number {
+        return this.rotation * (Math.PI / 180);
     }
 }
 

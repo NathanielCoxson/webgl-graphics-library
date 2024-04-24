@@ -201,6 +201,7 @@ export default class Canvas {
 
         const { vertexCount: v } = circle;
         const radianInterval = (2 * Math.PI) / v;
+        const rot = circle.getRotationRadians();
 
         const vertices: number[] = [];
         for (let i = 0; i < v; i++) {
@@ -399,16 +400,17 @@ function setCircle(
     const y = circle.position.y - circle.relativeOrigin.y;
     const { radius: r, vertexCount: v } = circle;
     const radianInterval = (2 * Math.PI) / v;
+    const rot = circle.getRotationRadians();
 
     const vertices: number[] = [];
     for (let i = 0; i < v; i++) {
         vertices.push(
             0 + x + r,
             0 + y + r,
-            Math.cos(radianInterval * i) * r + x + r,
-            Math.sin(radianInterval * i) * r + y + r,
-            Math.cos(radianInterval * ((i+1)%v)) * r + x + r,
-            Math.sin(radianInterval * ((i+1)%v)) * r + y + r,
+            Math.cos(radianInterval * i + rot) * r + x + r,
+            Math.sin(radianInterval * i + rot) * r + y + r,
+            Math.cos(radianInterval * ((i+1)%v) + rot) * r + x + r,
+            Math.sin(radianInterval * ((i+1)%v) + rot) * r + y + r,
         );
     }
 
