@@ -31,7 +31,9 @@ const image = new Image();
 image.src = "minesweeper-one.svg";
 image.onload = () => {
     for (const r of rectangles) {
-        r.setTexture(64, 64, image);
+        if (!r.hasFillColor) {
+            r.setTexture(64, 64, image);
+        }
         circle.setTexture(50, 50, image);
     }
 }
@@ -42,8 +44,14 @@ canvasElement?.addEventListener("mousedown", (e: any) => {
     const rect = canvasElement.getBoundingClientRect();
     const x = e.clientX - rect.left; //x position within the element.
     const y = e.clientY - rect.top;  //y position within the element.
-    clickEvents.push([Math.floor(x / 64), Math.floor(y / 64)]);
+    clickEvents.push([x, y]);
 });
+
+const rotatingRect = new Rectangle(50, 50);
+rotatingRect.setPosition(new G.Position(320, 320));
+rotatingRect.setFillColor(new G.Color(1, 0, 0, 1));
+rotatingRect.setOrigin(25, 25);
+rectangles.push(rotatingRect);
 
 // Basic rendering function
 let moveRight = true;
@@ -52,8 +60,17 @@ function render() {
     // Update
 
     // Process events
-    for (const [j, i] of clickEvents) {
-        rectangles[4 * i + j + i].removeTexture();
+    for (const [x, y] of clickEvents) {
+        for (const r of rectangles) {
+            if (!r.hasTexture) continue; 
+
+            if (
+                x > r.position.x && x < r.position.x + r.width &&
+                y > r.position.y && y < r.position.y + r.height
+            ) {
+                r.removeTexture(); 
+            }
+        }
     }
     clickEvents = [];
 
@@ -82,6 +99,7 @@ function render() {
         circle.position.y -= 0.8;
     }
     circle.setRotation(circle.rotation + 1);
+    rotatingRect.setRotation(rotatingRect.rotation + 0.5);
 
     // Draw
     for (const r of rectangles) {

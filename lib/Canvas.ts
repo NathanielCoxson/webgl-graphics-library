@@ -372,23 +372,38 @@ function setRectangle(
     width: number,
     height: number,
 ) {
-    const x = rect.position.x - rect.relativeOrigin.x;
-    const y = rect.position.y - rect.relativeOrigin.y;
+    const x = rect.position.x;
+    const y = rect.position.y;
 
-    const x1 = x;
-    const x2 = x + width;
-    const y1 = y;
-    const y2 = y + height;
+    const rx = rect.relativeOrigin.x / width;
+    const ry = rect.relativeOrigin.y / height;
+
+    const rot = rect.getRotationRadians();
 
     // bufferData will use the last used buffer which in this case
     // is the positionBuffer.
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        x1, y1,
-        x2, y1,
-        x1, y2,
-        x1, y2,
-        x2, y1,
-        x2, y2
+        //x1, y1,
+        //x2, y1,
+        //x1, y2,
+        
+        //x1, y2,
+        //x2, y1,
+        //x2, y2,
+        
+        ((0 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) * width  + (x),
+        ((0 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) * height + (y),
+        ((1 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) * width  + (x),
+        ((1 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) * height + (y),
+        ((0 - rx) * Math.cos(rot) - (1 - ry) * Math.sin(rot)) * width  + (x),
+        ((0 - rx) * Math.sin(rot) + (1 - ry) * Math.cos(rot)) * height + (y),
+        
+        ((0 - rx) * Math.cos(rot) - (1 - ry) * Math.sin(rot)) * width  + (x),
+        ((0 - rx) * Math.sin(rot) + (1 - ry) * Math.cos(rot)) * height + (y),
+        ((1 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) * width  + (x),
+        ((1 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) * height + (y),
+        ((1 - rx) * Math.cos(rot) - (1 - ry) * Math.sin(rot)) * width  + (x),
+        ((1 - rx) * Math.sin(rot) + (1 - ry) * Math.cos(rot)) * height + (y),
     ]), gl.STATIC_DRAW);
 }
 
