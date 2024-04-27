@@ -375,8 +375,8 @@ function setRectangle(
     const x = rect.position.x;
     const y = rect.position.y;
 
-    const rx = rect.relativeOrigin.x / width;
-    const ry = rect.relativeOrigin.y / height;
+    const rx = rect.relativeOrigin.x;
+    const ry = rect.relativeOrigin.y;
 
     const rot = rect.getRotationRadians();
 
@@ -391,19 +391,19 @@ function setRectangle(
         //x2, y1,
         //x2, y2,
         
-        ((0 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) * width  + (x),
-        ((0 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) * height + (y),
-        ((1 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) * width  + (x),
-        ((1 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) * height + (y),
-        ((0 - rx) * Math.cos(rot) - (1 - ry) * Math.sin(rot)) * width  + (x),
-        ((0 - rx) * Math.sin(rot) + (1 - ry) * Math.cos(rot)) * height + (y),
+        ((0 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
+        ((0 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
+        ((width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
+        ((width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
+        ((0 - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
+        ((0 - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
         
-        ((0 - rx) * Math.cos(rot) - (1 - ry) * Math.sin(rot)) * width  + (x),
-        ((0 - rx) * Math.sin(rot) + (1 - ry) * Math.cos(rot)) * height + (y),
-        ((1 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) * width  + (x),
-        ((1 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) * height + (y),
-        ((1 - rx) * Math.cos(rot) - (1 - ry) * Math.sin(rot)) * width  + (x),
-        ((1 - rx) * Math.sin(rot) + (1 - ry) * Math.cos(rot)) * height + (y),
+        ((0 - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
+        ((0 - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
+        ((width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
+        ((width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
+        ((width - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
+        ((width - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
     ]), gl.STATIC_DRAW);
 }
 

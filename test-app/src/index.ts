@@ -48,9 +48,10 @@ canvasElement?.addEventListener("mousedown", (e: any) => {
     clickEvents.push([x, y]);
 });
 
-const rotatingRect = new Rectangle(50, 50);
+const rotatingRect = new Rectangle(50, 100);
 rotatingRect.setPosition(new G.Position(320, 320));
 rotatingRect.setFillColor(red);
+rotatingRect.setOrigin(50/2, 100/2);
 rectangles.push(rotatingRect);
 
 // Basic rendering function
