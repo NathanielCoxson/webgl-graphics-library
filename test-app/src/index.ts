@@ -9,11 +9,13 @@ const canvas = new Canvas(canvasElement);
 const rectangles: Rectangle[] = [];
 const circles: any = [];
 
+const red = new G.Color(255, 0, 255, 255);
+
 const radius = 25;
 const circle = new Circle(radius, 30);
 circle.setPosition(new G.Position(100, 50));
 circle.setOrigin(radius, radius);
-circle.setFillColor(new G.Color(1, 0, 0, 0.25));
+circle.setFillColor(red);
 circles.push(circle);
 
 for (let i = 0; i < 5; i++) {
@@ -34,7 +36,6 @@ image.onload = () => {
         if (!r.hasFillColor) {
             r.setTexture(64, 64, image);
         }
-        circle.setTexture(50, 50, image);
     }
 }
 
@@ -49,8 +50,7 @@ canvasElement?.addEventListener("mousedown", (e: any) => {
 
 const rotatingRect = new Rectangle(50, 50);
 rotatingRect.setPosition(new G.Position(320, 320));
-rotatingRect.setFillColor(new G.Color(1, 0, 0, 1));
-rotatingRect.setOrigin(25, 25);
+rotatingRect.setFillColor(red);
 rectangles.push(rotatingRect);
 
 // Basic rendering function
