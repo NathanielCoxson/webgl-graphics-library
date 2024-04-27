@@ -104,9 +104,9 @@ export class Color {
         if (r > 255) {
             throw "r value out of range";
         }
-        this.r = r;
-        this.g = g;
-        this.b = b;
+        this.r = r / 255;
+        this.g = g / 255;
+        this.b = b / 255;
         this.a = a;
     }
 }
