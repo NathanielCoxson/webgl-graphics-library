@@ -393,17 +393,17 @@ function setRectangle(
         
         ((0 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
         ((0 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
-        ((1 + width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
-        ((1 + width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
-        ((0 - rx) * Math.cos(rot) - (1 + height - ry) * Math.sin(rot)) + (x),
-        ((0 - rx) * Math.sin(rot) + (1 + height - ry) * Math.cos(rot)) + (y),
+        ((width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
+        ((width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
+        ((0 - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
+        ((0 - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
         
-        ((0 - rx) * Math.cos(rot) - (1 + height - ry) * Math.sin(rot)) + (x),
-        ((0 - rx) * Math.sin(rot) + (1 + height - ry) * Math.cos(rot)) + (y),
-        ((1 + width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
-        ((1 + width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
-        ((1 + width - rx) * Math.cos(rot) - (1 + height - ry) * Math.sin(rot)) + (x),
-        ((1 + width - rx) * Math.sin(rot) + (1 + height - ry) * Math.cos(rot)) + (y),
+        ((0 - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
+        ((0 - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
+        ((width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
+        ((width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
+        ((width - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
+        ((width - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
     ]), gl.STATIC_DRAW);
 }
 
