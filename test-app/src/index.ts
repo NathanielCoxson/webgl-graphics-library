@@ -9,13 +9,13 @@ const canvas = new Canvas(canvasElement);
 const rectangles: Rectangle[] = [];
 const circles: any = [];
 
-const red = new G.Color(255, 0, 255, 255);
+const pink = new G.Color(255, 0, 255, 255);
 
 const radius = 25;
 const circle = new Circle(radius, 30);
 circle.setPosition(new G.Position(100, 50));
 circle.setOrigin(radius, radius);
-circle.setFillColor(red);
+circle.setFillColor(pink);
 circles.push(circle);
 
 for (let i = 0; i < 5; i++) {
@@ -47,12 +47,29 @@ canvasElement?.addEventListener("mousedown", (e: any) => {
     const y = e.clientY - rect.top;  //y position within the element.
     clickEvents.push([x, y]);
 });
+let keyDownEvents: [] = [];
+window.addEventListener("keypress", (e: any) => {
+    keyDownEvents.push(e.key);
+});
+let keyUpEvents: [] = [];
+window.addEventListener("keyup", (e: any) => {
+    keyUpEvents.push(e.key);
+})
+let up = false;
+let down = false;
+let left = false;
+let right = false;
 
 const rotatingRect = new Rectangle(50, 100);
 rotatingRect.setPosition(new G.Position(320, 320));
-rotatingRect.setFillColor(red);
+rotatingRect.setFillColor(pink);
 rotatingRect.setOrigin(50/2, 100/2);
 rectangles.push(rotatingRect);
+
+const player = new Rectangle(50, 50);
+player.setFillColor(pink);
+player.setOrigin(player.width / 2, player.height / 2);
+player.setPosition(new G.Position(100, 100));
 
 // Basic rendering function
 let moveRight = true;
@@ -74,6 +91,8 @@ function render() {
         }
     }
     clickEvents = [];
+    
+    sPlayerMovement();
 
     if (circle.position.x + circle.radius >= canvas.width) {
         moveRight = false;
@@ -109,9 +128,50 @@ function render() {
     for (const c of circles) {
         canvas.drawCircle(c);
     }
+    canvas.drawRect(player);
 
     // Display
     canvas.display();
     window.requestAnimationFrame(render);
 }
 window.requestAnimationFrame(() => render());
+
+function sPlayerMovement(): void {
+    // Player movement
+    for (const key of keyDownEvents) {
+        if (key === 'w') {
+            up = true;
+        } else if (key === 's') {
+            down = true;
+        } else if (key === 'a') {
+            left = true;
+        } else if (key === 'd') {
+            right = true;
+        }
+    }
+    for (const key of keyUpEvents) {
+        if (key === 'w') {
+            up = false;
+        } else if (key === 's') {
+            down = false;
+        } else if (key === 'a') {
+            left = false;
+        } else if (key === 'd') {
+            right = false;
+        }
+    }
+    if (up) {
+        player.setPosition(new G.Position(player.position.x, player.position.y - 2));
+    }
+    if (down) {
+        player.setPosition(new G.Position(player.position.x, player.position.y + 2));
+    }
+    if (left) {
+        player.setPosition(new G.Position(player.position.x - 2, player.position.y));
+    }
+    if (right) {
+        player.setPosition(new G.Position(player.position.x + 2, player.position.y));
+    }
+    keyDownEvents = [];
+    keyUpEvents = [];
+}
