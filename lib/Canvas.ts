@@ -372,13 +372,18 @@ function setRectangle(
     width: number,
     height: number,
 ) {
-    const x = rect.position.x;
-    const y = rect.position.y;
+    const px = rect.position.x;
+    const py = rect.position.y;
 
     const rx = rect.relativeOrigin.x;
     const ry = rect.relativeOrigin.y;
 
     const rot = rect.getRotationRadians();
+
+    const [x1, y1] = rotatePoint([0 - rx, 0 - ry],          rot); // Bottom left
+    const [x2, y2] = rotatePoint([0 - rx, height - ry],     rot); // Top left 
+    const [x3, y3] = rotatePoint([width - rx, height - ry], rot); // Top right
+    const [x4, y4] = rotatePoint([width - rx, 0 - ry],      rot); // Bottom right
 
     // bufferData will use the last used buffer which in this case
     // is the positionBuffer.
@@ -386,24 +391,18 @@ function setRectangle(
         //x1, y1,
         //x2, y1,
         //x1, y2,
-        
+        //
         //x1, y2,
         //x2, y1,
         //x2, y2,
-        
-        ((0 - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
-        ((0 - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
-        ((width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
-        ((width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
-        ((0 - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
-        ((0 - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
-        
-        ((0 - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
-        ((0 - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
-        ((width - rx) * Math.cos(rot) - (0 - ry) * Math.sin(rot)) + (x),
-        ((width - rx) * Math.sin(rot) + (0 - ry) * Math.cos(rot)) + (y),
-        ((width - rx) * Math.cos(rot) - (height - ry) * Math.sin(rot)) + (x),
-        ((width - rx) * Math.sin(rot) + (height - ry) * Math.cos(rot)) + (y),
+
+        x1 + px, y1 + py,
+        x4 + px, y4 + py,
+        x2 + px, y2 + py,
+
+        x2 + px, y2 + py,
+        x4 + px, y4 + py,
+        x3 + px, y3 + py,
     ]), gl.STATIC_DRAW);
 }
 
@@ -430,4 +429,11 @@ function setCircle(
     }
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+}
+
+function rotatePoint(point: [number, number], radians: number): [number, number] {
+    return [
+        point[0] * Math.cos(radians) - point[1] * Math.sin(radians),
+        point[0] * Math.sin(radians) + point[1] * Math.cos(radians),
+    ];
 }

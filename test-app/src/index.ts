@@ -100,7 +100,7 @@ function render() {
         circle.position.y -= 0.8;
     }
     circle.setRotation(circle.rotation + 1);
-    rotatingRect.setRotation(rotatingRect.rotation + 0.5);
+    rotatingRect.setRotation(rotatingRect.rotation - 0.5);
 
     // Draw
     for (const r of rectangles) {
