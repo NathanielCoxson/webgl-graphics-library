@@ -54,7 +54,8 @@ window.addEventListener("keypress", (e: any) => {
 let keyUpEvents: [] = [];
 window.addEventListener("keyup", (e: any) => {
     keyUpEvents.push(e.key);
-})
+});
+
 let up = false;
 let down = false;
 let left = false;
@@ -89,6 +90,12 @@ function render() {
                 r.removeTexture(); 
             }
         }
+
+        const bullet = new Circle(15, 30);
+        bullet.setPosition(new G.Position(player.position.x, player.position.y));
+        bullet.setFillColor(new G.Color(0, 0, 0, 1));
+        bullet.setOrigin(15, 15);
+        circles.push(bullet);
     }
     clickEvents = [];
     
